@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<title>KepLer</title>
+
+	<!-- Стандартный favicon -->
+	<link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+
+	<!-- SVG для современных браузеров -->
+	<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+
+	<!-- PNG favicon для разных размеров -->
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="icons/web-app-manifest-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="icons/web-app-manifest-512x512.png">
+
+	<!-- Apple Touch Icon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+
+	<!-- Web App Manifest -->
+	<link rel="manifest" href="icons/site.webmanifest">
+
+	<style>
+		body {
+			background-color: #0f112b;
+			font-family: Arial, sans-serif;
+			color: white;
+			margin: 0;
+			padding: 0;
+		}
+
+		.menu {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			background-color: #1a1d45;
+			padding: 10px;
+		}
+
+		.menu button {
+			background-color: #2D3E50;
+			color: #FFD700;
+			margin: 5px;
+			padding: 10px 15px;
+			border: none;
+			cursor: pointer;
+			border-radius: 6px;
+			font-weight: bold;
+		}
+
+		.menu button:hover {
+			background-color: #34495E;
+		}
+
+		.gallery {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 10px;
+			padding: 20px;
+			/* max-width: 1200px; */
+			margin: auto;
+		}
+
+		.gallery.ultra-small {
+			max-width: 300px;
+		}
+
+		.gallery.small {
+			max-width: 600px;
+		}
+
+		.gallery.medium {
+			max-width: 900px;
+		}
+
+		.gallery.large {
+			max-width: 1200px;
+		}
+
+
+
+		.gallery img {
+			width: 100%;
+			height: auto;
+			cursor: pointer;
+			border-radius: 4px;
+			transition: transform 0.2s;
+		}
+
+		.gallery img:hover {
+			transform: scale(1.03);
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 999;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			background-color: rgba(0, 0, 0, 0.85);
+		}
+
+		.modal-content {
+			display: block;
+			margin: auto;
+			max-width: 90vw;
+			max-height: 90vh;
+			border-radius: 6px;
+		}
+
+		.close {
+			position: absolute;
+			top: 20px;
+			right: 40px;
+			color: white;
+			font-size: 35px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+
+		.close:hover {
+			color: #ffcc00;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="menu">
+
+		<button onclick="showCategory('Свидетельства ЭВМ')">Свидетельства ЭВМ</button>
+		<button onclick="showCategory('Изобретения')">Изобретения</button>
+		<button onclick="showCategory('Конференции')">Конференции</button>
+		<button onclick="showCategory('Благодарности')">Благодарности</button>
+		<button onclick="showCategory('Сертификаты')">Сертификаты</button>
+		<button onclick="showCategory('Рацпредложения')">Рацпредложения</button>
+		<button onclick="showCategory('Промышленные образцы')">Промышленные образцы</button>
+		<button onclick="showCategory('Свидетельства БД')">Свидетельства БД</button>
+
+	</div>
+
+	<div class="gallery" id="gallery"></div>
+
+	<div class="modal" id="myModal">
+		<span class="close" onclick="closeModal()">&times;</span>
+		<img class="modal-content" id="modalImage">
+	</div>
+
+	<script>
+		const imageMap = {
+			"Благодарности": [
+				"2015 Благодарность.jpg",
+				"2019 Благодарность.jpg"
+			],
+			"Изобретения": [
+				"2018 Патент № 2675477.jpg"
+			],
+			"Конференции": [
+				"2013 Диплом 1 место.jpg",
+				"2013 Диплом 3 место.jpg",
+				"2013 Диплом участника.jpg",
+				"2014 Диплом 1 место.jpg",
+				"2014 Диплом 2 место.jpg",
+				"2014 Диплом 3 место.jpg",
+				"2014 Диплом участника.jpg",
+				"2015 Диплом 1 место.jpg",
+				"2015 Диплом За актуальность исследования.jpg",
+				"2016 Диплом 3 место.jpg",
+				"2016 Диплом Лучшая презентация.jpg",
+				"2016 Диплом участника (1 место - не выдали именной диплом).jpg",
+				"2016 Диплом участника.jpg",
+				"2018 Диплом 3 место.jpg",
+				"2018 Диплом За оригинальность идеи.jpg",
+				"2019 Диплом 1 место.jpg",
+				"2019 Диплом 2 место.jpg",
+				"2019 Диплом участника.jpg"
+			],
+			"Промышленные образцы": [
+				"2017 Патент № 102680.jpg",
+				"2017 Патент № 102681.jpg",
+				"2018 Патент № 111373.jpg",
+				"2019 Патент № 116805.jpg",
+				"2019 Патент № 116806.jpg"
+			],
+			"Рацпредложения": [
+				"2012 Рацпредложение №352.jpg",
+				"2012 Рацпредложение №359.jpg",
+				"2013 Рацпредложение №278.jpg",
+				"2013 Рацпредложение №379.jpg",
+				"2014 Рацпредложение №399.jpg",
+				"2014 Рацпредложение №412.jpg",
+				"2015 Рацпредложение №139.jpg",
+				"2015 Рацпредложение №73.jpg",
+				"2016 Рацпредложение №182.jpg",
+				"2016 Рацпредложение №20.jpg",
+				"2016 Рацпредложение №200.jpg",
+				"2016 Рацпредложение №209.jpg",
+				"2016 Рацпредложение №232.jpg",
+				"2016 Рацпредложение №238.jpg",
+				"2016 Рацпредложение №53.jpg",
+				"2017 Рацпредложение №175.jpg",
+				"2017 Рацпредложение №66.jpg",
+				"2017 Рацпредложение №71.jpg",
+				"2018 Рацпредложение №11.jpg",
+				"2018 Рацпредложение №161.jpg",
+				"2018 Рацпредложение №182.jpg",
+				"2018 Рацпредложение №19.jpg",
+				"2018 Рацпредложение №39.jpg",
+				"2018 Рацпредложение №80.jpg",
+				"2018 Рацпредложение №97.jpg",
+				"2019 Рацпредложение №232.jpg",
+				"2019 Рацпредложение №76.jpg",
+				"2019 Рацпредложение №90.jpg",
+				"2019 Рацпредложение №94.jpg",
+				"2020 Рацпредложение №21.jpg",
+				"2021 Рацпредложение №141.jpg",
+				"2021 Рацпредложение №143.jpg",
+				"2021 Рацпредложение №156.jpg"
+			],
+			"Свидетельства БД": [
+				"2016 Свидетельство №2016621677.jpg",
+				"2016 Свидетельство №2016621678.jpg"
+			],
+			"Свидетельства ЭВМ": [
+				"2012 Свидетельство №2012611037.jpg",
+				"2013 Свидетельство №2013617332.jpg",
+				"2015 Свидетельство №2015613705.jpg",
+				"2016 Свидетельство №2016663449.jpg",
+				"2016 Свидетельство №2016663894.jpg"
+			],
+			"Сертификаты": [
+				"2012 WinCC OA.jpg",
+				"2014 WinCC OA.jpg",
+				"2016 WinCC OA.png",
+				"2018 Безопасность в нефтяной и газовой промышленности.jpg",
+				"2020 Agile.jpg",
+				"2020 MindMaps.jpg",
+				"2020 Сертификат Sololearn  CSS.jpg",
+				"2020 Сертификат Sololearn HTML.jpg",
+				"2020 Сертификат Sololearn JavaScript.jpg",
+				"2020 Сертификат Sololearn Python.jpg",
+				"2020 Сертификат Sololearn SQL.jpg",
+				"2020 Сертификат Stepik Python.JPG",
+				"2020 Стресс-менеджмент.jpg",
+				"2020 Эмоциональный интеллект.jpg",
+				"2021 Сертификат Stepik JavaScript.jpg",
+				"2021 Сертификат Stepik Linux.jpg",
+				"2022 Сертификат Java.jpg",
+				"2025 Идеальная продуктивность.jpg",
+				"2025 Креативное мышление.jpg"
+			]
+		};
+
+
+		const categoryWidths = {
+			"Благодарности": "small",
+			"Изобретения": "ultra-small",
+			"Свидетельства БД": "small",
+			"Свидетельства ЭВМ": "medium",
+			"Промышленные образцы": "medium",
+			"Конференции": "large",
+			"Рацпредложения": "large",
+			"Сертификаты": "large"
+		};
+
+
+		const imageCache = {};
+
+		function showCategory(category) {
+			const gallery = document.getElementById("gallery");
+			gallery.innerHTML = "";
+
+			// Удаляем предыдущие классы размера
+			gallery.classList.remove("ultra-small", "small", "medium", "large");
+
+			// Добавляем соответствующий класс
+			const widthClass = categoryWidths[category] || "medium";
+			gallery.classList.add(widthClass);
+
+			if (!imageMap[category]) return;
+
+			// Если уже кэшировали эту категорию — используем
+			if (imageCache[category]) {
+				imageCache[category].forEach(img => gallery.appendChild(img));
+				return;
+			}
+
+			// Иначе — создаём и сохраняем в кэш
+			const elements = imageMap[category].map(filename => {
+				const img = document.createElement("img");
+				img.src = `images/${category}/${filename}`;
+				img.alt = filename;
+				img.loading = "lazy"; // для дополнительной оптимизации
+				img.onclick = () => openModal(img.src);
+				return img;
+			});
+
+			imageCache[category] = elements;
+
+			elements.forEach(img => gallery.appendChild(img));
+		}
+
+		function openModal(src) {
+			document.getElementById("modalImage").src = src;
+			document.getElementById("myModal").style.display = "block";
+		}
+
+		function closeModal() {
+			document.getElementById("myModal").style.display = "none";
+		}
+
+		// Закрытие модального окна по клику вне изображения
+		window.onclick = function (event) {
+			const modal = document.getElementById("myModal");
+			if (event.target === modal) {
+				modal.style.display = "none";
+			}
+		};
+
+		// Автоматически показываем первую категорию
+		showCategory("Свидетельства ЭВМ");
+	</script>
+</body>
+
+</html>
